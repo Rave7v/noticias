@@ -8,24 +8,40 @@ struct Noticias: Codable {
 struct Noticia: Codable {
     var title: String?
     var description: String?
-    //var urlToImage: String
-    //var url: String
+    var urlToImage: String
+    var url: String
 }
+var articulosNoticias: [Noticia] = []
+var urlMandar :String?
 
 class ViewController: UIViewController,UITableViewDelegate, UITableViewDataSource {
     //para guardar los articulos y llenar la tabla
     var noticias = [Noticia]()
     
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return 10
+        return articulosNoticias.count
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let celda = tablaNoticias.dequeueReusableCell(withIdentifier: "celda", for: indexPath)
-        celda.textLabel?.text = "Noticia1"
+        celda.textLabel?.text = articulosNoticias[indexPath.row].title
+        celda.detailTextLabel?.text = articulosNoticias[indexPath.row].description
         return celda
     }
     
+    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        
+        print(articulosNoticias[indexPath.row].url)
+        
+        tablaNoticias.deselectRow(at: indexPath, animated: true)
+        performSegue(withIdentifier: "navegarSitioWeb", sender: self)
+    }
+    
+    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
+        if segue.identifier == "navegarSitioWeb"{
+            let objDestino = segue.destination as! pagWebViewController
+        }
+    }
 
     @IBOutlet weak var tablaNoticias: UITableView!
     override func viewDidLoad() {
@@ -39,6 +55,7 @@ class ViewController: UIViewController,UITableViewDelegate, UITableViewDataSourc
         func analizarJSON(json:Data){
             let decodificador = JSONDecoder()
             if let datosDecodificados = try? decodificador.decode(Noticias.self, from: json){
+                articulosNoticias = datosDecodificados.articles
                 print("Los articulos son: \(datosDecodificados.articles.count)")
                 print("Los articulos son: \(datosDecodificados.articles)")
             }
@@ -49,8 +66,6 @@ class ViewController: UIViewController,UITableViewDelegate, UITableViewDataSourc
                 analizarJSON(json: data)
             }
         }
-        
-        // Do any additional setup after loading the view.
     }
     
 }
