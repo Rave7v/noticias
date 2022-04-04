@@ -8,9 +8,16 @@ struct Noticias: Codable {
 struct Noticia: Codable {
     var title: String?
     var description: String?
-    var urlToImage: String
-    var url: String
+    var urlToImage: String?
+    var url: String?
+    var source: Source?
 }
+
+struct Source: Codable {
+    var name: String?
+}
+
+
 var articulosNoticias: [Noticia] = []
 var urlMandar :String?
 
@@ -23,9 +30,14 @@ class ViewController: UIViewController,UITableViewDelegate, UITableViewDataSourc
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let celda = tablaNoticias.dequeueReusableCell(withIdentifier: "celda", for: indexPath)
-        celda.textLabel?.text = articulosNoticias[indexPath.row].title
-        celda.detailTextLabel?.text = articulosNoticias[indexPath.row].description
+        let celda = tablaNoticias.dequeueReusableCell(withIdentifier: "celda", for: indexPath) as! NoticiaTableViewCell
+        celda.tituloNoticia?.text = articulosNoticias[indexPath.row].title
+        celda.descripcionNoticia?.text = articulosNoticias[indexPath.row].description
+        celda.descripcionNoticia.text? = "Fuente: \(articulosNoticias[indexPath.row].source?.name)"
+        
+        let urlimagen = articulosNoticias[indexPath.row].urlToImage ?? ""
+        celda.imagenNoticia.cargarDesdeSitio(direcciones: urlimagen)
+        
         return celda
     }
     
@@ -33,6 +45,7 @@ class ViewController: UIViewController,UITableViewDelegate, UITableViewDataSourc
         
         print(articulosNoticias[indexPath.row].url)
         
+        urlMandar = articulosNoticias[indexPath.row].url
         tablaNoticias.deselectRow(at: indexPath, animated: true)
         performSegue(withIdentifier: "navegarSitioWeb", sender: self)
     }
@@ -43,14 +56,19 @@ class ViewController: UIViewController,UITableViewDelegate, UITableViewDataSourc
         }
     }
 
+    
+    
+    
+    /////////////////estar
     @IBOutlet weak var tablaNoticias: UITableView!
     override func viewDidLoad() {
         super.viewDidLoad()
-        
+        //registrar la nueva celda
+        tablaNoticias.register(UINib(nibName: "NoticiaTableViewCell", bundle: nil), forCellReuseIdentifier: "celda")
         tablaNoticias.delegate = self
         tablaNoticias.dataSource = self
         
-        let urlString = "https://newsapi.org/v2/everything?q=tesla&from=2022-02-28&sortBy=publishedAt&apiKey=888ffbdfb918461a9b071045e1f3ae1f"
+        let urlString = "https://newsapi.org/v2/top-headlines?apiKey=f0797ef3b62d4b90a400ed224e0f82b7&country=mx"
         
         func analizarJSON(json:Data){
             let decodificador = JSONDecoder()
@@ -67,7 +85,13 @@ class ViewController: UIViewController,UITableViewDelegate, UITableViewDataSourc
             }
         }
     }
-    
+}
+
+//falta
+extension UIImageView{
+    func cargarDesdeSitio(direcciones: URL) {
+        <#function body#>
+    }
 }
 //llave
 //https://newsapi.org/v2/everything?q=tesla&from=2022-02-28&sortBy=publishedAt&apiKey=888ffbdfb918461a9b071045e1f3ae1f
