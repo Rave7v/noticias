@@ -1,5 +1,6 @@
 
 import UIKit
+import WebKit
 
 class pagWebViewController: UIViewController {
     var recibirUrl:String?
@@ -7,8 +8,8 @@ class pagWebViewController: UIViewController {
     @IBOutlet weak var paginaWeb: WKWebView!
     override func viewDidLoad() {
         super.viewDidLoad()
-        if let urlCargar = URL(string: recibirUrl)
+        guard let url = URL(string: recibirUrl!)else{return}
+        paginaWeb.load(URLRequest(url: url))
         // Do any additional setup after loading the view.
     }
-
 }

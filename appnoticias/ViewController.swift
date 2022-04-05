@@ -1,5 +1,6 @@
 
 import UIKit
+import SafariServices
 
 struct Noticias: Codable {
     var articles: [Noticia]
@@ -33,7 +34,7 @@ class ViewController: UIViewController,UITableViewDelegate, UITableViewDataSourc
         let celda = tablaNoticias.dequeueReusableCell(withIdentifier: "celda", for: indexPath) as! NoticiaTableViewCell
         celda.tituloNoticia?.text = articulosNoticias[indexPath.row].title
         celda.descripcionNoticia?.text = articulosNoticias[indexPath.row].description
-        celda.descripcionNoticia.text? = "Fuente: \(articulosNoticias[indexPath.row].source?.name)"
+        celda.Fuente?.text = "Fuente: \((articulosNoticias[indexPath.row].source?.name)!)"
         
         let urlimagen = articulosNoticias[indexPath.row].urlToImage ?? ""
         celda.imagenNoticia.cargarDesdeSitio(direcciones: urlimagen)
@@ -47,12 +48,19 @@ class ViewController: UIViewController,UITableViewDelegate, UITableViewDataSourc
         
         urlMandar = articulosNoticias[indexPath.row].url
         tablaNoticias.deselectRow(at: indexPath, animated: true)
+        
+        
+        let url = URL(string: urlMandar ?? "")!
+        let vc = SFSafariViewController(url: url)
+        present(vc, animated: true)
+        
         performSegue(withIdentifier: "navegarSitioWeb", sender: self)
     }
     
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
         if segue.identifier == "navegarSitioWeb"{
             let objDestino = segue.destination as! pagWebViewController
+            objDestino.recibirUrl = urlMandar
         }
     }
 
@@ -87,10 +95,18 @@ class ViewController: UIViewController,UITableViewDelegate, UITableViewDataSourc
     }
 }
 
-//falta
+
 extension UIImageView{
-    func cargarDesdeSitio(direcciones: URL) {
-        <#function body#>
+    func cargarDesdeSitio(direcciones: String) {
+        guard let url = URL(string: direcciones) else {return}
+        
+        DispatchQueue.main.async {
+            if let imagenData = try? Data(contentsOf: url){
+                if let imagenCargada = UIImage(data: imagenData){
+                    self.image = imagenCargada
+                }
+            }
+        }
     }
 }
 //llave
